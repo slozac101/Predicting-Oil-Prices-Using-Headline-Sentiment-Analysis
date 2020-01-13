@@ -13,7 +13,7 @@ def get_headline_sentiment(headline):
     return analysis.sentiment.polarity
 
 def get_average_sentiment(oilHeadlines, beginDate, endDate):
-    #computes average sentiment of oilHeadlines between two specified dates
+    # computes average sentiment of oilHeadlines between two specified dates
     relevantHeadlines = oilHeadlines.loc[oilHeadlines['publish_date'] >= beginDate]
     relevantHeadlines = relevantHeadlines.loc[relevantHeadlines['publish_date'] <= endDate]
     totalPolarity = 0;
@@ -27,7 +27,7 @@ def get_average_sentiment(oilHeadlines, beginDate, endDate):
         return 0
 
 def get_oil_headlines_sentiments(df):
-    #filters by oil headlines and calculates + stores their sentiments in the dataframe
+    # filters by oil headlines and calculates + stores their sentiments in the dataframe
     oilHeadlines = df.loc[df.headline_text.str.contains(r"\boil\b")]
     oilHeadlines.insert(2, "sentiment", oilHeadlines.headline_text.map(lambda headline: get_headline_sentiment(headline)))
     oilHeadlines.publish_date = oilHeadlines.publish_date.map(lambda date : datetime.datetime.strptime(str(date), '%Y%m%d'))
@@ -35,7 +35,7 @@ def get_oil_headlines_sentiments(df):
     return oilHeadlines
 
 def get_monthly_sentiments(oilHeadlines):
-    numEntries = 0
+    # calculate average sentiment polarity for each 28 day period in the dataset
     beginDate = datetime.datetime(2003, 2, 20)
     endDate = beginDate + datetime.timedelta(days=28)
     sentimentDictionary = {}
@@ -45,14 +45,15 @@ def get_monthly_sentiments(oilHeadlines):
         if (not (endDate.weekday() == 5 or endDate.weekday() == 6)):
             dates.append(endDate)
             average_sentiments.append(get_average_sentiment(oilHeadlines, beginDate, endDate))
-            numEntries += 1
         beginDate += datetime.timedelta(days=1)
         endDate += datetime.timedelta(days=1)
     sentimentDictionary['date'] = dates
     sentimentDictionary['average_sentiment'] = average_sentiments
     return pd.DataFrame.from_dict(sentimentDictionary)
 
-df = pd.read_csv(r"C:\Users\hughd\Documents\MLstocks\abcnews-date-text.csv")
+# replace XXX with location of abcnews-date-text.csv file
+df = pd.read_csv("XXX")
+
 oilHeadlines = get_oil_headlines_sentiments(df)
 sentiment_df = get_monthly_sentiments(oilHeadlines)
 print(sentiment_df)
